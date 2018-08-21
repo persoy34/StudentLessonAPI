@@ -99,7 +99,7 @@ public class Lesson {
     }
 	@Override
     public int hashCode() {
-        return this.id * 31;
+        return (int) (this.getId()/ 16 * 31);
     }	
 	@Override
 	public String toString(){

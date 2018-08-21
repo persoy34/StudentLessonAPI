@@ -2,7 +2,6 @@ package com.student.lesson.api.controller;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -36,26 +35,20 @@ public class StudentController {
 	
 	@Autowired
 	LessonDAO lessonDao;
-//	@Autowired
-//	StudentRepository studentRepository;
 	
-//	@Autowired
-//	LessonRepository lessonRepository;
-	
-	
-//	 @GetMapping(value="/{studentId}")
-//	public  ResponseEntity<Student> findById(@PathVariable (value = "studentId") Long studentId){
-//		 Optional<Student> studentOpt= studentRepository.findById(studentId);
-//		 if (studentOpt != null) {
-//			 return new ResponseEntity<Student>(studentOpt.get(), HttpStatus.OK);
-//		 }
-//		 throw new RestClientResponseException("Student with this id isn't exist", HttpStatus.NOT_FOUND.value(),"Student with this id isn't exist", null, null, null);
-//	 }
-//	 
-//	 @GetMapping()
-//	 public ResponseEntity<List<Student>> getAllStudent(){
-//		 return new ResponseEntity<>(studentRepository.findAll(),HttpStatus.OK);
-//	 }
+	 @GetMapping(value="/{studentId}")
+	public  ResponseEntity<Student> findById(@PathVariable (value = "studentId") int studentId){
+		Student studentOpt= studentDao.getStudentById(studentId);
+		 if (studentOpt != null) {
+			 return new ResponseEntity<Student>(studentOpt, HttpStatus.OK);
+		 }
+		 throw new RestClientResponseException("Student with this id isn't exist", HttpStatus.NOT_FOUND.value(),"Student with this id isn't exist", null, null, null);
+	 }
+	 
+	 @GetMapping()
+	 public ResponseEntity<List<Student>> getAllStudent(){
+		 return new ResponseEntity<>(studentDao.getAllStudent(),HttpStatus.OK);
+	 }
 	 
 	 @PutMapping(value="/add-student", headers = "Accept=application/json")
 	 @Transactional
@@ -93,23 +86,28 @@ public class StudentController {
 				
 			}
 			try {
-				student = studentDao.findStudent(student);
+				studentDao.getStudentById(student.getId());
 				student = studentDao.updateStudent(student);
 			} catch (Exception e) {
 				student = studentDao.addStudent(student);
 			}
-		// student = studentDao.updateStudent(student);
 		 return new ResponseEntity<Student>(student, HttpStatus.OK);
 	 }
 	 
 	 @DeleteMapping(value = "/delete-student")
-	 public ResponseEntity<?> deleteStudent(@RequestBody Long studentID){
+	 public ResponseEntity<?> deleteStudent(@RequestBody Student student){
 		 try {
-		   studentDao.deleteStudent(studentID);
+		   if (student.getId() != 0) {
+			   student = studentDao.getStudentById(student.getId());
+		   }
+		   else {
+			   student = studentDao.findStudent(student);
+		   }
+		   studentDao.deleteStudent(student);
 		   return ResponseEntity.ok().build();
 		 }
 		 catch(Exception e) {
-			 throw new ResourceNotFoundException("Student with  " + studentID + " not found");
+			 throw new ResourceNotFoundException("Student not found");
 		 }
 	 }
 }

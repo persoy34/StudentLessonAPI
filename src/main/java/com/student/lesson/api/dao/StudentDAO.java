@@ -10,10 +10,10 @@ import com.student.lesson.api.model.Student;
 @Repository
 @Transactional
 public interface StudentDAO {
-	public Student getStudentById(Long studentId);
+	public Student getStudentById(int studentId);
 	public List<Student> getAllStudent();
 	public Student updateStudent(Student student);
-	public void deleteStudent(Long studentId);
+	public void deleteStudent(Student student);
 	public Student addStudent(Student student);
 	public Student findStudent(Student student) ;
 }

@@ -3,12 +3,10 @@ package com.student.lesson.api.dao.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +28,8 @@ public class StudentDAOImpl implements StudentDAO {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Student getStudentById(Long studentId) {
-		Query query = entityManager.createQuery("select s from  Student s where s.student_id=:student_id");
+	public Student getStudentById(int studentId) {
+		Query query = entityManager.createQuery("select s from  Student s where s.id=:student_id");
 		query.setParameter("student_id", studentId);
 		Student student = null;
 		try {
@@ -70,12 +68,9 @@ public class StudentDAOImpl implements StudentDAO {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void deleteStudent(Long studentId) {
-		Query query = entityManager.createQuery("select s from  Student s where s.student_id=:student_id");
-		query.setParameter("student_id", studentId);
-		Student student = null;
+	public void deleteStudent(Student student) {
+		
 		try {
-			student = (Student) query.getSingleResult();
 			entityManager.remove(student);
 		} catch (NoResultException e) {
 			throw new ResourceNotFoundException("Student doesn't exist");
