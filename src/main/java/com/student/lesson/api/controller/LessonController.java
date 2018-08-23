@@ -1,7 +1,6 @@
 package com.student.lesson.api.controller;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -22,7 +21,6 @@ import com.student.lesson.api.dao.LessonDAO;
 import com.student.lesson.api.dao.StudentDAO;
 import com.student.lesson.api.exception.ResourceNotFoundException;
 import com.student.lesson.api.model.Lesson;
-import com.student.lesson.api.model.Student;
 
 @RestController
 @RequestMapping("/lesson")
@@ -52,21 +50,21 @@ public class LessonController {
 	
 	 @PutMapping(value="/add-lesson")
 	 public ResponseEntity<Lesson> addLesson(@RequestBody Lesson lesson){
-	    Set<Student> students = lesson.getStudents();	
-	    if (students != null) {
-	    	students.forEach(student -> {
-	    		Student student1;
-	    		try {
-	    		 student1 = studentDao.findStudent(student);
-	    		 student.setId(student1.getId());
-	    		 student.setAge(student1.getAge());
-	    		 student.setName(student1.getName());
-	    		}
-	    		catch (Exception e) {
-	    		}
-	    		
-	    	});
-	    }
+//	    Set<Student> students = lesson.getStudents();	
+//	    if (students != null) {
+//	    	students.forEach(student -> {
+//	    		Student student1;
+//	    		try {
+//	    		 student1 = studentDao.findStudent(student);
+//	    		 student.setId(student1.getId());
+//	    		 student.setAge(student1.getAge());
+//	    		 student.setName(student1.getName());
+//	    		}
+//	    		catch (Exception e) {
+//	    		}
+//	    		
+//	    	});
+//	    }
 		return new ResponseEntity<Lesson>(lessonDao.addLesson(lesson),HttpStatus.OK);
 	 }
 	 
@@ -80,7 +78,6 @@ public class LessonController {
 	 public ResponseEntity<?> deleteLesson(@RequestBody Lesson lesson){
 		try { 	
 		 lesson = lessonDao.getLessonByCode(lesson.getCode());
-		// lessonDao.deleteStudentLesson(lesson.getStudents());
 		 lessonDao.deleteLesson(lesson);
 		 return ResponseEntity.ok().build();
 		}

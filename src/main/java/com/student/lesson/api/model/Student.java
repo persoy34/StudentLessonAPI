@@ -33,11 +33,11 @@ public class Student {
 
 	@NotNull
 	@Size(max = 100)
-	@Column(unique = true)
+	@Column(unique = false)
 	private String name;
 
 	@NotNull
-	@Column(unique = true)
+	@Column(unique = false)
 	private Integer age;
 
 	@ManyToMany(fetch = FetchType.LAZY,

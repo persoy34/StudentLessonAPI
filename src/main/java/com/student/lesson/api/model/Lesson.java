@@ -1,20 +1,22 @@
 package com.student.lesson.api.model;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
@@ -27,13 +29,9 @@ public class Lesson {
 	private String code;
 	private int credit;
 		
-	@ManyToMany(fetch = FetchType.LAZY,
-    cascade = {
-        CascadeType.PERSIST,
-        CascadeType.MERGE,
-        CascadeType.REMOVE
-    },
-    mappedBy = "lesson")
+	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+	@JoinTable(name = "student_lesson", joinColumns = @JoinColumn(name = "lesson_id", referencedColumnName = "id"), 
+	inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"))
 	@JsonBackReference
 	private Set<Student> students = new HashSet<>();
 	
@@ -44,11 +42,10 @@ public class Lesson {
     	this.name = name;
     }
     
-    public Lesson(String name, String code, int credit,Set<Student> students){
+    public Lesson(String name, String code, int credit){
     	this.name = name;
     	this.code = code;
     	this.credit = credit;
-    	this.students = students;
     }
 	
     
@@ -76,14 +73,6 @@ public class Lesson {
 		this.code = code;
 	}
 	
-	public Set<Student> getStudents() {
-		return students;
-	}
-	
-	public void setStudents(Set<Student> students) {
-		this.students = students;
-	}
-	
 	public int getCredit() {
 		return credit;
 	}
@@ -108,26 +97,7 @@ public class Lesson {
 		JSONObject jsonInfo = new JSONObject();
 		try {
 		jsonInfo.put("name",this.name);
-		}
-		catch(JSONException e) {
-			e.printStackTrace();
-		}
-		JSONArray studentArray = new JSONArray();
-		if(this.students != null && students.size() > 0){
-			this.students.forEach(student->{
-				JSONObject subJson = new JSONObject();
-				try {
-				subJson.put("name", student.getName());
-				subJson.put("age",student.getAge());
-				}
-				catch (JSONException e) {
-					e.printStackTrace();
-				}
-				studentArray.put(subJson);
-			});
-		}
-		try {
-		jsonInfo.put("students", studentArray);
+		jsonInfo.put("code", this.code);
 		}
 		catch(JSONException e) {
 			e.printStackTrace();
