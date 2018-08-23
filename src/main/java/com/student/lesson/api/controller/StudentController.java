@@ -29,85 +29,92 @@ import com.student.lesson.api.model.Student;
 @RequestMapping("/student")
 @Transactional
 public class StudentController {
-	
+
 	@Autowired
 	StudentDAO studentDao;
-	
+
 	@Autowired
 	LessonDAO lessonDao;
-	
-	 @GetMapping(value="/{studentId}")
-	public  ResponseEntity<Student> findById(@PathVariable (value = "studentId") int studentId){
-		Student studentOpt= studentDao.getStudentById(studentId);
-		 if (studentOpt != null) {
-			 return new ResponseEntity<Student>(studentOpt, HttpStatus.OK);
-		 }
-		 throw new RestClientResponseException("Student with this id isn't exist", HttpStatus.NOT_FOUND.value(),"Student with this id isn't exist", null, null, null);
-	 }
-	 
-	 @GetMapping()
-	 public ResponseEntity<List<Student>> getAllStudent(){
-		 return new ResponseEntity<>(studentDao.getAllStudent(),HttpStatus.OK);
-	 }
-	 
-	 @PutMapping(value="/add-student", headers = "Accept=application/json")
-	 @Transactional
-	 public Student addStudent(@RequestBody Student student){
+
+	@GetMapping(value = "/{studentId}")
+	public ResponseEntity<Student> findById(@PathVariable(value = "studentId") int studentId) {
+		Student studentOpt = studentDao.getStudentById(studentId);
+		if (studentOpt != null) {
+			return new ResponseEntity<Student>(studentOpt, HttpStatus.OK);
+		}
+		throw new RestClientResponseException("Student with this id isn't exist", HttpStatus.NOT_FOUND.value(),
+				"Student with this id isn't exist", null, null, null);
+	}
+
+	@GetMapping()
+	public ResponseEntity<List<Student>> getAllStudent() {
+		return new ResponseEntity<>(studentDao.getAllStudent(), HttpStatus.OK);
+	}
+
+	@PutMapping(value = "/add-student", headers = "Accept=application/json")
+	@Transactional
+	public Student addStudent(@RequestBody Student student) {
 		Set<Lesson> lessons = student.getLesson();
 		Set<Lesson> newLessons = new HashSet<>();
 		if (lessons != null && lessons.size() > 0) {
 			lessons.forEach(lesson -> {
-				 Lesson lessonOpt = lessonDao.getLessonByCode(lesson.getCode());
+				Lesson lessonOpt = lessonDao.getLessonByCode(lesson.getCode());
 				if (lessonOpt == null) {
-					lessonOpt=lessonDao.addLesson(lesson);
-				} 
+					lessonOpt = lessonDao.addLesson(lesson);
+				}
 				newLessons.add(lessonOpt);
 			});
 			student.setLesson(newLessons);
 		}
 		student = studentDao.addStudent(student);
 		return student;
-	 }
-	 
-	 @PostMapping(value="/update-student")
-	 public ResponseEntity<Student> updateStudent(@RequestBody Student student){
-			Set<Lesson> lessons = student.getLesson();
-			if (lessons != null && lessons.size() > 0) {
-				lessons.forEach(lesson -> {
-					 Lesson lessonOpt = lessonDao.getLessonByCode(lesson.getCode());
-					if (lessonOpt == null) {
-						lessonOpt=lessonDao.addLesson(lesson);
-					} 
-					lesson.setId(lessonOpt.getId());
-					lesson.setCode(lessonOpt.getCode());
-					lesson.setName(lessonOpt.getName());
-					lesson.setCredit(lessonOpt.getCredit());
-				});
-				
+	}
+
+	@PostMapping(value = "/update-student")
+	public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
+		Set<Lesson> lessons = student.getLesson();
+		Set<Lesson> newLessons = new HashSet<>();
+		if (lessons != null && lessons.size() > 0) {
+			lessons.forEach(lesson -> {
+				Lesson lessonOpt = lessonDao.getLessonByCode(lesson.getCode());
+				if (lessonOpt == null) {
+					lessonOpt = lessonDao.addLesson(lesson);
+				}
+				newLessons.add(lessonOpt);
+			});
+			student.setLesson(newLessons);
+		}
+		try {
+			Student existingStudent = null;
+			if (student.getId() != 0) {
+				existingStudent = studentDao.getStudentById(student.getId());
+			} else {
+				existingStudent = studentDao.findStudent(student);
 			}
-			try {
-				studentDao.getStudentById(student.getId());
-				student = studentDao.updateStudent(student);
-			} catch (Exception e) {
-				student = studentDao.addStudent(student);
+			student.setId(existingStudent.getId());
+			for (Lesson l : existingStudent.getLesson()) {
+				student.getLesson().add(l);
 			}
-		 return new ResponseEntity<Student>(student, HttpStatus.OK);
-	 }
-	 
-	 @DeleteMapping(value = "/delete-student")
-	 public ResponseEntity<?> deleteStudent(@RequestBody Student student){
-		 try {
-		   if (student.getId() != 0) {
-			   student = studentDao.getStudentById(student.getId());
-		   }
-		   else {
-			   student = studentDao.findStudent(student);
-		   }
-		   studentDao.deleteStudent(student);
-		   return ResponseEntity.ok().build();
-		 }
-		 catch(Exception e) {
-			 throw new ResourceNotFoundException("Student not found");
-		 }
-	 }
+
+			student = studentDao.updateStudent(student);
+		} catch (Exception e) {
+			student = studentDao.addStudent(student);
+		}
+		return new ResponseEntity<Student>(student, HttpStatus.OK);
+	}
+
+	@DeleteMapping(value = "/delete-student")
+	public ResponseEntity<?> deleteStudent(@RequestBody Student student) {
+		try {
+			if (student.getId() != 0) {
+				student = studentDao.getStudentById(student.getId());
+			} else {
+				student = studentDao.findStudent(student);
+			}
+			studentDao.deleteStudent(student);
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			throw new ResourceNotFoundException("Student not found");
+		}
+	}
 }

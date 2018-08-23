@@ -62,6 +62,7 @@ public class StudentDAOImpl implements StudentDAO {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Student updateStudent(Student student) {
 		student = entityManager.merge(student);
+		entityManager.flush();
 		entityManager.close();
 		return student;
 	}

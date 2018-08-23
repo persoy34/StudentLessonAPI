@@ -30,7 +30,8 @@ public class Lesson {
 	@ManyToMany(fetch = FetchType.LAZY,
     cascade = {
         CascadeType.PERSIST,
-        CascadeType.MERGE
+        CascadeType.MERGE,
+        CascadeType.REMOVE
     },
     mappedBy = "lesson")
 	@JsonBackReference

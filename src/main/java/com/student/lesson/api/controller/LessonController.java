@@ -76,14 +76,16 @@ public class LessonController {
 		 return new ResponseEntity<Lesson>(lesson, HttpStatus.OK);
 	 }
 	 
-	 @DeleteMapping(value = "/delete-lesson/{lessonCode}")
-	 public ResponseEntity<?> deleteStudent(@RequestBody String lessonCode){
+	 @DeleteMapping(value = "/delete-lesson")
+	 public ResponseEntity<?> deleteLesson(@RequestBody Lesson lesson){
 		try { 	
-		 lessonDao.deleteLesson(lessonCode);
+		 lesson = lessonDao.getLessonByCode(lesson.getCode());
+		// lessonDao.deleteStudentLesson(lesson.getStudents());
+		 lessonDao.deleteLesson(lesson);
 		 return ResponseEntity.ok().build();
 		}
 		catch (Exception e) {
-			throw new ResourceNotFoundException("Lesson with  " + lessonCode + " not found");
+			throw new ResourceNotFoundException("Lesson with  " + lesson.getCode() + " not found");
 		}
 	 }
 
