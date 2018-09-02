@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 
 import com.student.lesson.api.dao.LessonDAO;
 import com.student.lesson.api.exception.ResourceNotFoundException;
@@ -32,10 +33,6 @@ public class LessonDAOImpl implements LessonDAO {
 
 	}
 
-	@Autowired
-	public LessonDAOImpl(EntityManagerFactory factory) {
-	}
-
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Lesson getLessonByCode(String lessonCode) {
@@ -45,7 +42,7 @@ public class LessonDAOImpl implements LessonDAO {
 			query.setParameter("code", lessonCode);
 			lesson = (Lesson) query.getSingleResult();
 		} catch (NoResultException e) {
-			
+			throw new RestClientException("Lesson with code "+lessonCode+" doesn't exist");
 		}
 		finally {
 			entityManager.close();
